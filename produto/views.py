@@ -5,8 +5,7 @@ from django.views.generic.detail import DetailView
 from django.views import View
 from django.contrib import messages
 from . import models
-
-from pprint import pprint
+from perfil.models import Perfil
 
 class ListaProdutos(ListView):
     model = models.Produto
@@ -24,11 +23,6 @@ class DetalheProduto(DetailView):
 
 class AdicionarAoCarrinho(View):
     def get(self, *args, **kwargs):
-        # if self.request.session.get('carrinho'):
-        #     del self.request.session['carrinho']
-        #     self.request.session.save()
-
-
         http_referer = self.request.META.get(
             'HTTP_REFERER',
             reverse('produto:lista')
@@ -158,6 +152,21 @@ class ResumoDaCompra(View):
     def get(self, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect('perfil:criar')
+        
+        perfil = Perfil.objects.filter(usuario=self.request.user).exists()
+        if not perfil:
+            messages.error(
+                self.request,
+                'Usuário sem perfil.'
+            )
+            return redirect('perfil:criar')
+        
+        if not  self.request.session['carrinho']:
+            messages.error(
+                self.request,
+                'Crrinho vazio.'
+            )
+            return redirect('produto:lista')
         
         contexto = {
             'usuario': self.request.user,
