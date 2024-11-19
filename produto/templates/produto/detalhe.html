@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load omfilters %}
 
+{% block titulo %}{{ produto.nome }} | {% endblock titulo %}
+
 {% block conteudo %}
 <div class="row">
     <div class="col-lg">
